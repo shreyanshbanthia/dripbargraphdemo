@@ -1,14 +1,24 @@
 <template>
   <div class="barDiv">
-    <canvas id="barGraphCanvas"> </canvas>
+    <canvas
+      id="barGraphCanvas"
+      v-bind:content="tooltipMsg"
+      v-tippy="{followCursor: followOption, placement: 'top'}"
+    ></canvas>
   </div>
 </template>
 
 <script>
+import { tippy } from "vue-tippy";
 export default {
   name: "BarGraph",
   data() {
-    return {};
+    let tooltipMsg = "";
+    let followOption = false;
+    return {
+      tooltipMsg,
+      followOption
+    };
   },
   props: {
     dataArr: {
@@ -33,6 +43,9 @@ export default {
     // Setting up the canvas and context
     canvas = document.getElementById("barGraphCanvas");
     ctx = canvas.getContext("2d");
+
+    const tippyInstance = tippy(canvas);
+    tippyInstance.disable();
 
     // Declaring chart related varaibles
     var graphWidth, graphHeight, canvasMargin, yAxisTitleSpace;
@@ -207,8 +220,6 @@ export default {
 
     //Event Listener to implement the tooltip
     canvas.addEventListener("mousemove", e => {
-      canvas.title = "";
-
       //Find the mouse co-ordinates
       const mousePos = {
         x: e.clientX - canvas.offsetLeft,
@@ -221,13 +232,19 @@ export default {
       // Find the color of the pixel the mouse is on
       const icolor = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
 
-      // Function to find which array value has the color mentioned above
-      self.dataArr.forEach(element => {
-        if (hasSameColor(icolor, element)) {
-          var temp = element.split(":");
-          canvas.title = "Year " + temp[0] + " , " + "Value: " + temp[1];
-        }
-      });
+      // Conditionally generate the tooltip
+      if (icolor == "rgb(0,0,0)") {
+        tippyInstance.hide();
+      } else {
+        self.dataArr.forEach(element => {
+          tippyInstance.enable();
+          if (hasSameColor(icolor, element)) {
+            var temp = element.split(":");
+            self.tooltipMsg = "Year " + temp[0] + " , " + "Value: " + temp[1];
+            tippyInstance.show();
+          }
+        });
+      }
     });
 
     // Function to compare color values mentioned above

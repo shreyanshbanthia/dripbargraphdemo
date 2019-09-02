@@ -1,11 +1,6 @@
 <template>
   <div id="app">
-    <BarGraph
-      :dataArr="arrData"
-      :xAxisTitle="xTitle"
-      :yAxisTitle="yTitle"
-      :key="componentKey"
-    />
+    <BarGraph :dataArr="arrData" :xAxisTitle="xTitle" :yAxisTitle="yTitle" :key="componentKey" />
   </div>
 </template>
 
